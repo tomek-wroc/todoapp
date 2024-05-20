@@ -1,0 +1,60 @@
+{% extends 'base.html' %} {% load static %}
+    <!-- Page Label -->
+{% block site_title %}
+    <h4>
+        Modify Task
+    </h4>
+{% endblock %}
+    <!-- Page Content -->
+{% block content %}
+    <form class="form-horizontal" id="taskUpdateForm" role="form" method="POST" action="{% url 'task-update' task.id %}">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h2>Modify Task</h2>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <!-- Show Form -->
+                {% csrf_token %}
+                {{ form.as_p }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <button type="submit" form="taskUpdateForm">Confirm</button>
+            </div>
+        </div>
+    </form>
+
+    <script lang="javascript">
+        document.querySelector('select[name="location"]').addEventListener("change", (event) => {
+            console.log('location changed', event.target.value)
+            fetchWeatherApi(event.target.value);
+        }).addEventListener('onclick', (event) => {
+            console.log('location clicked', event.target.value)
+            fetchWeatherApi(event.target.value);})
+        ;
+
+        function fetchWeatherApi(location) {
+            fetch('/api/weather', {
+                body: JSON.stringify({ location: location }),
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    "Content-Type": "application/json",
+                },
+            }).then(response => response.json()).then((response) => {
+                console.log('api response', response);
+
+                document.querySelector('body').style.backgroundColor =  response.background_color;
+            }).catch(e => {
+                console.log('err', e);
+            })
+        }
+    </script>
+{% endblock %}
