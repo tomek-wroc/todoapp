@@ -1,78 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <style>
-        label, input {
+        label,
+        input {
             display: block;
         }
+
         span.helptext {
             display: none;
         }
     </style>
-    
+
     <h1>Welcome to To-do Website</h1>
 
-{% block content %}
-{% endblock %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-$(document).ready(function () {
+    {% block content %}
+    {% endblock %}
 
-  // # Clear = sunny
-  // # Clouds = cloudy
-  // # Rain = rain
-  let selectedLocation = $('#id_todolist-creation-form-location').val();
-  
-  updateBackgdoundAndCurrentTemp(selectedLocation)
 
-  //$('#id_todolist-creation-form-location').change(function () {
-    //let selectedLocation = $(this).val();
-    //updateBackgdoundAndCurrentTemp(selectedLocation)
-  //});
-  function updateBackgdoundAndCurrentTemp(selectedLocation) {
-    if (selectedLocation) {
-        // get csrf token present in form in order to prevent against CSRF attack
-        const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
-        // You can make an AJAX response here to send the selected value to Django
-        $.ajax({
-            url: 'http://localhost:8080/api/weather',
-            type: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken // Include the CSRF token in the headers
-            },
-            contentType: 'application/json',
-            data: JSON.stringify({ location: selectedLocation }), // Send location data in JSON format
-            success: function (response) {
-                $('body').css('background-color', response.background_color);
-                updateTemperatureDisplay(response.temp)
-            },
-            error: function (xhr, status, error) {
-                // Handle errors
-                console.error('Error:', error);
-            }
-        });
-    } else {
-        // Handle case when no value is selected
-        $('body').css('background-color', 'white');
-        const temperatureDisplay = $('#temperature-display');
-        // Set empty string when nocation is not set
-        temperatureDisplay.text("");
-    }
-}
-
-function updateTemperatureDisplay(temperature) {
-    // Get the temperature display div
-    const temperatureDisplay = $('#temperature-display');
-    // Update its content with the temperature value
-    // Rounds down to the nearest integer
-    temperatureDisplay.text(`Current temperature: ${Math.floor(temperature)} °C`);
-}
-});
-</script>
 </body>
+
 </html>

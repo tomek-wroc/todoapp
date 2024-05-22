@@ -1,9 +1,12 @@
 from django import forms
-from . import models
+from django.forms import ModelForm
+from .models import Task
 
 
-class TaskCreationForm(forms.ModelForm):
+class TaskForm(ModelForm):
     class Meta:
-        model = models.Task
-        fields = ['note',  'status', 'location', 'weather', 'temp']
-
+        model = Task
+        fields = ['note', 'status', 'location', 'weather', 'temp']
+        widgets = {'weather': forms.HiddenInput(),
+                   'temp': forms.HiddenInput(),
+                   }

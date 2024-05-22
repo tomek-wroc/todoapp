@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static %}
+{% extends 'base.html' %} 
     <!-- Page Label -->
 {% block site_title %}
     <h4>
@@ -8,7 +8,7 @@
     <!-- Page Content -->
 {% block content %}
     <div class="row">
-        <div class="col-md-12 text-right">
+        <div class="col-md-14 text-right">
             <!-- Create Button -->
             
 			<div>
@@ -26,7 +26,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-14">
             <h3>
                 To-Do List
 			</h3>
@@ -56,8 +56,6 @@
                       <td>{{ task.note }}</td>
 					  <td><small>{{ task.status }}</small></td>
 					  <td><small>{{ task.location }}</small></td>
-                      <td><small>{{ task.weather }}</small></td>
-                      <td><small>{{ task.temp }}</small></td>
 					  <td class="color-column" style="background-color: {{task.background_color}}">
 					  <td class="text-right"><a href="{% url 'task-update' task.id %}" >Change</a></td>
 					  <td class="text-right"><a href="{% url 'task-delete' task.id %}" >Delete</a></td>

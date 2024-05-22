@@ -7,7 +7,7 @@
 {% endblock %}
     <!-- Page Content -->
 {% block content %}
-    <form class="form-horizontal" id="taskUpdateForm" role="form" method="POST" action="{% url 'task-update' task.id %}">
+    <form class="form-horizontal" id="taskUpdateForm" role="form" method="POST" action="{% url 'task-update' task.id %}" >
         <div class="row">
             <div class="col-md-3"></div>
             <div class="col-md-6">
@@ -22,39 +22,91 @@
                 {% csrf_token %}
                 {{ form.as_p }}
             </div>
+            <input type="hidden" name="latitude" />
+            <input type="hidden" name="longitude"  />
+            <input type="hidden" name="weather" />
+            <input type="hidden" name="temp" />
         </div>
         <div class="row">
             <div class="col-md-3"></div>
             <div class="col-md-6">
-                <button type="submit" form="taskUpdateForm">Confirm</button>
+                <button type="submit"  form="taskUpdateForm">Confirm</button>
             </div>
         </div>
     </form>
 
     <script lang="javascript">
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded and parsed');
+            if (document.querySelector('select[name="location"]').value == 'Current_Loc') {
+                console.log('Checking geolocation');
+                getGeoLocation();
+            }
+            else {
+                console.log('Geting weather');
+                updateWeatherBackground({location: document.querySelector('select[name="location"]').value} );
+            }
+        })
+    
         document.querySelector('select[name="location"]').addEventListener("change", (event) => {
-            console.log('location changed', event.target.value)
-            fetchWeatherApi(event.target.value);
-        }).addEventListener('onclick', (event) => {
-            console.log('location clicked', event.target.value)
-            fetchWeatherApi(event.target.value);})
-        ;
+            console.log('location changed ', event.target.value)
+            if (event.target.value == 'Current_Loc') {
+                getGeoLocation();
+            }
+            else {
+                updateWeatherBackground({ location: event.target.value });
+            }
+    
+        })
+    
+        function fetchWeatherApi(location_obj) { // string || { lat, lon, location }
+                return fetch('/api/weather', {
+                    body: JSON.stringify(location_obj),
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                        "Content-Type": "application/json",
+                    },
+                }).then(response => response.json()).catch(e => {
+                    console.log('err', e);
+                })
+            }
 
-        function fetchWeatherApi(location) {
-            fetch('/api/weather', {
-                body: JSON.stringify({ location: location }),
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
-                    "Content-Type": "application/json",
-                },
-            }).then(response => response.json()).then((response) => {
-                console.log('api response', response);
+            function updateWeatherBackground(location_obj)  {
+                fetchWeatherApi(location_obj).then((response) => {
+                    console.log('api response', response);
+                    document.querySelector('input[name=weather]').value = response.weather;
+                    document.querySelector('input[name=temp]').value = response.temp;
+                    document.querySelector('body').style.backgroundColor = response.background_color;
+                });
+            }
 
-                document.querySelector('body').style.backgroundColor =  response.background_color;
-            }).catch(e => {
-                console.log('err', e);
-            })
+            function updateBipIn(location) {
+                fetchWeatherApi(location).then((response) => {
+
+                })
+            }
+    
+        function getGeoLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    console.log('getPosition run ', position.coords);
+
+                    document.querySelector('input[name=latitude]').value = position.coords.latitude;
+                    document.querySelector('input[name=longitude]').value = position.coords.longitude;
+                    
+                    updateWeatherBackground({
+                        location: 'Current_Loc',
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    });
+                })
+            }
+            else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
         }
     </script>
 {% endblock %}
+
