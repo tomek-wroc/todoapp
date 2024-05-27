@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 TASKS_STATUS = (
-    (1, "To-do"),
+    (1, "To do"),
     (2, "Done")
 )
 
@@ -34,11 +34,9 @@ class Task(models.Model):
                                 max_length=20,
                                 null=True,
                                 blank=True)
-
     latitude = models.FloatField(verbose_name="",
                                  null=True,
                                  blank=True)
-
     longitude = models.FloatField(verbose_name="",
                                   null=True,
                                   blank=True)
@@ -49,12 +47,15 @@ class Task(models.Model):
     temp = models.FloatField(verbose_name="",
                              null=True,
                              blank=True)
-	
+    backgroundcolor = models.CharField(verbose_name="",
+                                       max_length=20,
+                                       null=True,
+                                       blank=True)
+
     class Meta:
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
         ordering = ['status', 'location']
-
 
     def __str__(self):
         return self.note
