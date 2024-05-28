@@ -1,8 +1,8 @@
 # To Do
 Small application in Django
 Prerequisites:
-1. You have to install Docker
-2. You need create files in ./env based on .env_example in current directory:
+1. You have to install Docker and Git
+2. You need create file ".env" based on ".env_example" in current directory:
 
 
 
