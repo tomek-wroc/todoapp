@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        label,
+        input {
+            display: block;
+        }
+
+        span.helptext {
+            display: none;
+        }
+    </style>
+
+    <h1>Welcome to To Do Website</h1>
+
+    {% block content %}
+    {% endblock %}
+    <br>
+    <div id="temperature-display">Current temperature:</div>
+    <div id="error-message"></div>
+    <a href="{% url 'tasks_list' %}">Go back</a>
+
+    <script lang="javascript">
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded and parsed ');
+            if (document.querySelector('select[name="location"]').value != '') {
+                if (document.querySelector('select[name="location"]').value == 'Current_Loc') {
+                    console.log('Checking geolocation');
+                    getGeoLocation();
+                    updateTemperatureDisplay(document.querySelector('input[name="temp"]').value, document.querySelector('input[name="weather"]').value);
+                }
+                else {
+                    console.log('Geting weather');
+                    updateWeatherBackground({ location: document.querySelector('select[name="location"]').value });
+                    updateTemperatureDisplay(document.querySelector('input[name="temp"]').value, document.querySelector('input[name="weather"]').value);
+                }
+            }
+            else {
+                document.querySelector('input[name=temp]').value = null
+                console.log('DOM fully loaded and checked temp ', document.querySelector('input[name=temp]').value);
+                updateTemperatureDisplay(document.querySelector('input[name="temp"]').value, document.querySelector('input[name="weather"]').value);
+            }
+        })
+
+        document.querySelector('select[name="location"]').addEventListener("change", (event) => {
+            console.log('location changed ', event.target.value)
+            if (document.querySelector('select[name="location"]').value != '') {
+                if (event.target.value == 'Current_Loc') {
+                    getGeoLocation();
+                }
+                else {
+                    updateWeatherBackground({ location: event.target.value });
+                }
+            }
+            else {
+                document.querySelector('input[name=weather]').value = null
+                document.querySelector('input[name=temp]').value = null
+                document.querySelector('body').style.backgroundColor = '#FFFFFF' //default white
+            }
+            updateTemperatureDisplay(document.querySelector('input[name="temp"]').value, document.querySelector('input[name="weather"]').value);
+
+        })
+
+        function fetchWeatherApi(location_obj) { // string || { location, lat, lon }
+            return fetch('/api/weather', {
+                body: JSON.stringify(location_obj),
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                    "Content-Type": "application/json",
+                },
+            }).then(response => response.json()).catch(e => {
+                console.log('err', e);
+            })
+        }
+
+        function updateWeatherBackground(location_obj) {
+            fetchWeatherApi(location_obj).then((response) => {
+                console.log('api response', response);
+                const errorMessageDisplay = document.getElementById('error-message');
+                if (response.weather == undefined) {
+                    errorMessageDisplay.innerHTML = "An error occurred while getting the weather";
+                    updateTemperatureDisplay('', '')
+                }
+                else {
+                    errorMessageDisplay.innerHTML = '';
+                    document.querySelector('input[name=weather]').value = response.weather;
+                    document.querySelector('input[name=temp]').value = response.temp;
+                    document.querySelector('input[name=backgroundcolor]').value = response.background_color;
+                    document.querySelector('body').style.backgroundColor = response.background_color;
+                    updateTemperatureDisplay(response.temp, response.weather)
+                }
+            });
+        }
+
+        function getGeoLocation() {
+            const errorMessageDisplay = document.getElementById('error-message');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    console.log('getPosition ', position.coords);
+
+                    document.querySelector('input[name=latitude]').value = position.coords.latitude;
+                    document.querySelector('input[name=longitude]').value = position.coords.longitude;
+
+                    updateWeatherBackground({
+                        location: 'Current_Loc',
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    });
+                })
+            }
+            else {
+                errorMessageDisplay.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function updateTemperatureDisplay(temperature, weather) {
+            console.log('updateTemperatureDisplay start ', temperature)
+            // Get the temperature display div
+            const temperatureDisplay = document.getElementById('temperature-display');
+            if (weather == '') {
+                temperatureDisplay.innerHTML = ''
+            }
+            else {
+                // Update its content with the temperature value
+                // Rounds down to the nearest integer
+                temperatureDisplay.innerHTML = 'Current temperature: ' + Math.floor(temperature) + ' °C, ' + weather
+            }
+        }
+    </script>
+</body>
+
+</html>

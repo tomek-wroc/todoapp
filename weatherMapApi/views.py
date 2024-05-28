@@ -1,11 +1,11 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+#from .utils import fetch2Weather
 from .utils import calcBackgroundColor
-from .utils import fetchWeather
- 
+from .utils import fetchWeather, fetchWeatherLatLon
+
 @api_view(['POST'])
 # Only authenticated user via Basic auth or session + CSRF token method has an access to this Post endpoind
 #@permission_classes([IsAuthenticated])
@@ -14,13 +14,19 @@ def getWeatherData(request):
     # Verify if body has location in correct format in POST request
     if 'location' in request_data:
         if not isinstance(request_data['location'], str):
-            return Response({'error': 'Location must be a string'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Location must be a string'}, status=status.HTTP_400_BAD_REQUEST)    
     else:
         # If 'location' is not provided in the request data, return a bad request response
         return Response({'error': 'Location not provided'}, status=status.HTTP_400_BAD_REQUEST)
    
     location = request_data.get('location')
-    response = fetchWeather(location)
+    latitude = request_data.get('lat')
+    longitude = request_data.get('lon')
+    if location == 'Current_Loc':
+        response = fetchWeatherLatLon(latitude, longitude)
+    else:
+        response = fetchWeather(location)
+        
     if response.status_code == 200:
         json_response = response.json();        
         # Weather description: clouds, rain, and others. More info under the link: https://openweathermap.org/weather-conditions  

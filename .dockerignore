@@ -1,0 +1,9 @@
+# .dockerignore
+
+# Environments
+.env
+.env_example
+.venv
+venv/
+env.bak/
+venv.bak/
