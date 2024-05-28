@@ -81,9 +81,9 @@ class TaskList(LoginRequiredMixin, ListView):
 
 class TaskCreate(LoginRequiredMixin, CreateView):
     model = Task
+    form_class = TaskForm
     context_object_name = 'task'
     template_name = 'todo/task_create_form.html'
-    fields = ['note', 'status', 'location']
     # Redirect to tasks list when task created correctly
     success_url = reverse_lazy('tasks_list')
 
@@ -99,7 +99,6 @@ class TaskUpdate(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskForm
     context_object_name = 'task'
-
     template_name = 'todo/task_update_form.html'
     success_url = reverse_lazy('tasks_list')
 
