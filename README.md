@@ -1,4 +1,4 @@
-# todolist
+# To Do
 Small application in Django
 Prerequisites:
 1. You have to install Docker
